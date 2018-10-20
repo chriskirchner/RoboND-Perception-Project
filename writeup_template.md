@@ -36,11 +36,11 @@ You're reading it!
 ### Exercise 1, 2 and 3 pipeline implemented
 #### 1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
 
-Exercise 1 was conmpleted by implementing a voxel grid and passthrough filter, followedy by a RANSAC plane segmentation.  The voxel grid filter downsampled the visual input to decrease computational processing requirements.  LEAF SIZE was used to find the appropriate downampling amount for retain key data while removing unecessary data.  A passthrough filter acted as a simple rudimentary means of narrowing down the key parts of the visual scene by separating the table and objects from the rest of the world.  A z-axis passthrough between AXIS MIN and AXIS MAX values were used to grab on the table and objects from the world.  RANSAC plane segmentation fitted the table plane in order to extract the table from objects.  Objects were treated as the negative information found in the inliers from RANSAC segmentation.  The MAX DISTANCE variable was used in RANSAC to determine the maximum distance of other cloud points that should be included as an inlier.
+Exercise 1 was completed by implementing a voxel grid and passthrough filter, followedy by a RANSAC plane segmentation.  These pre-processing steps were done on the initial visual input before clustering and object recognition code.  The voxel grid filter downsampled the visual input to decrease computational processing requirements.  LEAF SIZE was used to find the appropriate downampling amount for retain key data while removing unecessary data.  A passthrough filter acted as a simple rudimentary means of narrowing down the key parts of the visual scene by separating the table and objects from the rest of the world.  A z-axis passthrough between AXIS MIN and AXIS MAX values were used to grab on the table and objects from the world.  RANSAC plane segmentation fitted the table plane in order to extract the table from objects.  Objects were treated as the negative information found in the inliers from RANSAC segmentation.  The MAX DISTANCE variable was used in RANSAC to determine the maximum distance of other cloud points that should be included as an inlier.
 
 #### 2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 
-Euclidean clustering was used to differentiate objects between each other by grabbing cloud points that were neighbors within a certain distance of each other.  Different colors were assigned to each cluster, which differentiated each object with a different color.  CLUSTER TOLERANCE, MIN CLUSTER SIZE, and MAX CLUSTER SIZE were adjusted to optimize clustering.  CLUSTER TOLERANCE was used to determine the distance between cloud points belonging to a particular cluster.  The MIN and MAX CLUSTER SIZE was used to set min and max cloud points for a given cluster.
+Euclidean clustering was used to differentiate objects between each other by grabbing cloud points that were neighbors within a certain distance of each other.  Different colors were assigned to each cluster, which differentiated each object with a different color.  CLUSTER TOLERANCE, MIN CLUSTER SIZE, and MAX CLUSTER SIZE were adjusted to optimize clustering.  CLUSTER TOLERANCE was used to determine the distance between cloud points belonging to a particular cluster.  The MIN and MAX CLUSTER SIZE was used to set min and max cloud points for a given cluster.  After clustering is performed, an SVM is applied to predict object identity based on color and normal feature training from individual objects.
 
 #### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
 
@@ -52,7 +52,8 @@ To compute object recognition, color and normal histograms were combined into a 
 
 #### 1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick_list_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.
 
-The following are the object recognition labels for worlds 1 - 3:
+
+After object recognition code, objects recognized in the scene are submitted to the pick and place routine along with their centroid and intended bin.  These message request parameters were compiled into a yaml.  The following are the object recognition labels for worlds 1 - 3:
 
 ![World 1](rviz_test1.png)
 
