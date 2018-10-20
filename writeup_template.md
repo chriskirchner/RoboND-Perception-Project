@@ -25,7 +25,6 @@
 13. Looking for a bigger challenge?  Load up the `challenge.world` scenario and see if you can get your perception pipeline working there!
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/1067/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
 ### Writeup / README
@@ -37,21 +36,30 @@ You're reading it!
 ### Exercise 1, 2 and 3 pipeline implemented
 #### 1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
 
+Exercise 1 was conmpleted by implementing a voxel grid and passthrough filter, followedy by a RANSAC plane segmentation.  The voxel grid filter downsampled the visual input to decrease computational processing requirements.  LEAF SIZE was used to find the appropriate downampling amount for retain key data while removing unecessary data.  A passthrough filter acted as a simple rudimentary means of narrowing down the key parts of the visual scene by separating the table and objects from the rest of the world.  A z-axis passthrough between AXIS MIN and AXIS MAX values were used to grab on the table and objects from the world.  RANSAC plane segmentation fitted the table plane in order to extract the table from objects.  Objects were treated as the negative information found in the inliers from RANSAC segmentation.  The MAX DISTANCE variable was used in RANSAC to determine the maximum distance of other cloud points that should be included as an inlier.
+
 #### 2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 
-#### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
-Here is an example of how to include an image in your writeup.
+Euclidean clustering was used to differentiate objects between each other by grabbing cloud points that were neighbors within a certain distance of each other.  Different colors were assigned to each cluster, which differentiated each object with a different color.  CLUSTER TOLERANCE, MIN CLUSTER SIZE, and MAX CLUSTER SIZE were adjusted to optimize clustering.  CLUSTER TOLERANCE was used to determine the distance between cloud points belonging to a particular cluster.  The MIN and MAX CLUSTER SIZE was used to set min and max cloud points for a given cluster.
 
-![demo-1](https://user-images.githubusercontent.com/20687560/28748231-46b5b912-7467-11e7-8778-3095172b7b19.png)
+#### 2. Complete Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
+
+To compute object recognition, color and normal histograms were combined into a feature set that was used to train a support vector model.  In order to create a training set, color and normal histograms were collected from objects at random viewing angles.  Better training accuracy was achieved by increasing the number of viewing angles and, therefore, the number of feature instances the SVM is trained on.   The color histograms allowed for use of the HSV color format, which provides a better indicator of color by separating hue from saturation and intensity.  Separating hue is important since lighting could otherwise affect object recognition by changing the apparent color.  A significant increase in object recognition accuracy was achieved by switching from RGB to HSV.  Normal histograms were also compiled in the direction of the robots perspective to differentiate objects by curvature.  The following normalized and un-normalized confusion matrices were obtained from an SVM trained on 1000 features per object.
+
+![Confusion Matrix](ConfusionMatrix.png)
 
 ### Pick and Place Setup
 
 #### 1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick_list_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.
 
-And here's another image! 
-![demo-2](https://user-images.githubusercontent.com/20687560/28748286-9f65680e-7468-11e7-83dc-f1a32380b89c.png)
+The following are the object recognition labels for worlds 1 - 3:
+
+![World 1](rviz_test1.png)
+
+![World 2](rviz_test2.png)
+
+![World 3](rviz_test3.png)
 
 Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
 
-
-
+One of the most challenging aspects of the project was resolving the disconnect between an SVM that recognized objects with 98% accuracy and the failure to recognize objects with comparable accuracy during the actual Pick and Place task.  The issue was resolved after realizing object predictions were being made using RGB while the SVM was trained on HSV.  Another issue was the inadvertent recognition of bins as objects, which was resolved by removing the periphery from the robots object recognition perspective using a passthrough filter.  Failtures in the implementation could be realized under different lighting due to the dependence on color as a feature of recognition.  While the use of HSV color format reduces the affect of light intensity, the color of lighting (e.g. red or yellow light vs white) may have an impact on object recognition.  This impact may be minimized by training the data set under different lighting conditions.  Futher pursuits with this project could entail additional complexity by adding additional objects and introducing realistic backgrounds outside of the current bland and sterile Pick and Place testing environements.
